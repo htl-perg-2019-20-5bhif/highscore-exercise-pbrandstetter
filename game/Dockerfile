@@ -1,13 +1,11 @@
-FROM node:alpine
-
-ENV PORT 80
-EXPOSE 80
-
-COPY . .
-
+FROM node:latest as build
+COPY . /app
 WORKDIR /app
 
-RUN npm install && npm run build
+RUN npm install
+RUN npm run build
 
-FROM nginx:alpine
-COPY /app/dist/ /usr/share/nginx/html/
+FROM nginx
+EXPOSE 8080
+COPY --from=build /app/dist/ /usr/share/nginx/html
+COPY --from=build /app/default.conf /etc/nginx/conf.d/default.conf
